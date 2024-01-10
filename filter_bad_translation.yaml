@@ -1,0 +1,57 @@
+common:
+  default_n_jobs: 2
+  output_directory: datasets
+
+steps:
+  - type: preprocess
+    parameters:
+      inputs:
+        - WikiMatrix.en-ru.en
+        - WikiMatrix.en-ru.ru
+      outputs: &prepared
+        - "WM_preprocessed.en-ru.en"
+        - "WM_preprocessed.en-ru.ru"
+      preprocessors:
+        - WhitespaceNormalizer: {}
+
+  - type: remove_duplicates
+    parameters:
+      inputs: *prepared
+      outputs: &noduplicates
+        - "WM_no_dups.en-ru.en"
+        - "WM_no_dups.en-ru.ru"
+
+  - type: filter
+    parameters:
+      inputs: *noduplicates
+      outputs:
+        - "filtered_translation.en-ru.en"
+        - "filtered_translation.en-ru.ru"
+      filters:
+        - LanguageIDFilter:
+            languages: [en, ru]
+            langid_languages: [en, ru]
+            thresholds: [0.8, 0.8]
+
+        - CharacterScoreFilter:
+            scripts: [Latin, Cyrillic]
+            thresholds: [0.8, 0.8]
+
+        - HtmlTagFilter: {}
+
+        - LongWordFilter:
+            threshold: 35
+
+        - LengthRatioFilter:
+            threshold: 2.0
+            require_all: true
+
+        - TerminalPunctuationFilter:
+            threshold: -2
+
+        - NonZeroNumeralsFilter:
+            threshold: 0.5
+            require_all: true
+
+        - SimilarityFilter:
+            threshold: 0.8

@@ -1,0 +1,17 @@
+common:
+  default_n_jobs: 2
+  output_directory: datasets
+
+steps:
+  - type: filter
+    parameters:
+      inputs:
+        - "WikiMatrix.en-ru.en"
+        - "WikiMatrix.en-ru.ru"
+      outputs:
+        - "filtered_10_words.en-ru.en"
+        - "filtered_10_words.en-ru.ru"
+      filters:
+        - LengthFilter:
+            min_length: 1
+            max_length: 10
